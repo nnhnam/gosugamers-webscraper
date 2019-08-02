@@ -59,14 +59,14 @@ const getResultsURLs = async function(page = 1) {
 };
 
 // Return a promise containing more detailed information about a match from its href
-const getResult = async function(href) {
+const getResult = async function(href = '') {
     const html = await rp(`https://www.gosugamers.net${href}`);
     const $ = cheerio.load(html);
     let state = '';
     if ($('div.cell.match.finished')[0]) state = 'finished';
     else if ($('div.cell.match.live')[0]) state = 'live';
     else if ($('div.cell.match.upcoming')[0]) state = 'upcoming';
-    else throw('error');
+    else throw('invalid href');
     const result = {
         team1: $('div.small-7:nth-child(1) > h2:nth-child(2) > a:nth-child(1)')[0].children[0].data,
         team2: $('div.small-7:nth-child(2) > h2:nth-child(2) > a:nth-child(1)')[0].children[0].data,

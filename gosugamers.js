@@ -1,4 +1,4 @@
-// Web Scraper for gosugamer.net
+// Web Scraper for gosugamers.net
 
 const rp = require('request-promise');
 const cheerio = require('cheerio');

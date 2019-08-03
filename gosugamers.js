@@ -43,7 +43,19 @@ const getResultsURLs = async function(page = 1) {
     if (isNaN(page)) throw('invalid page number');
     const html = await rp(`${urlResults}${page}`);
     const $ = cheerio.load(html);
-    const len = $('div.cell.matches-list > div > div.cell > a').length;
+    let len = $('div.cell.matches-list > div.grid-x > div').length;
+    let date = '';
+    const dateArray = [];
+    for (let i = 0; i < len; ++i) {
+        if ($('div.cell.matches-list > div.grid-x > div')[i].attribs.class === 'match-date cell') {
+            date = $('div.cell.matches-list > div.grid-x > div')[i].children[0].data.trim();
+        }
+        else if ($('div.cell.matches-list > div.grid-x > div')[i].attribs.class === 'cell') {
+            dateArray.push(date);
+        }
+    }
+
+    len = $('div.cell.matches-list > div > div.cell > a').length;
     for (let i = 0; i < len; ++i) {
         matches.push({
             href: $('div.cell.matches-list > div > div.cell > a')[i].attribs.href,
@@ -52,7 +64,8 @@ const getResultsURLs = async function(page = 1) {
             tournament: $('div.cell.match-tournament')[i].children[0].data.trim(),
             team1_win: $('div.cell.small-3.medium-3.match-score')[i].children[1].children[0].data.trim(),
             team2_win: $('div.cell.small-3.medium-3.match-score')[i].children[5].children[0].data.trim(),
-            state : 'finished',
+            time: dateArray[i],
+            state: 'finished',
         });
     }
     return matches;

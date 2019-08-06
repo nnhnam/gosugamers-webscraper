@@ -79,6 +79,7 @@ const getResult = async function(href = '') {
     if ($('div.cell.match.finished')[0]) state = 'finished';
     else if ($('div.cell.match.live')[0]) state = 'live';
     else if ($('div.cell.match.upcoming')[0]) state = 'upcoming';
+    else if ($('div.cell.match.canceled')[0]) state = 'canceled';
     else throw('invalid href');
     const result = {
         team1: $('div.small-7:nth-child(1) > h2:nth-child(2) > a:nth-child(1)')[0].children[0].data,

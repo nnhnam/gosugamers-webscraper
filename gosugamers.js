@@ -2,15 +2,41 @@
 
 const rp = require('request-promise');
 const cheerio = require('cheerio');
+const puppeteer = require('puppeteer');
+const urlGosugamers = 'https://www.gosugamers.net';
 const urlSchedule = 'https://www.gosugamers.net/dota2/matches?maxResults=18&page=';
 const urlResults = 'https://www.gosugamers.net/dota2/matches/results?maxResults=18&page=';
+
+let browser;
+
+function timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const load = async function() {
+    browser = await puppeteer.launch();
+};
+
+const close = async function() {
+    await browser.close();
+};
 
 // Return a promise containing ongoing and upcoming matches from Gosugamers
 const getScheduleURLs = async function(page = 1) {
     const matches = [];
     if (isNaN(page)) throw('invalid page number');
-    const html = await rp(`${urlSchedule}${page}`);
-    const $ = cheerio.load(html);
+    const tab = await browser.newPage();
+    await tab.goto(`${urlSchedule}${page}`, {
+        waitUntil: 'networkidle0',
+        timeout: 30000,
+    });
+    let html = await tab.content();
+    let $ = cheerio.load(html);
+    if ($('.cf-browser-verification')[0]) {
+        await timeout(10000);
+        html = await tab.content();
+        $ = cheerio.load(html);
+    }
     // Get ongoing
     let len = $('div.cell.matches-list > div > div.cell > a > div.live').length;
     for (let i = 0; i < len; ++i) {
@@ -41,8 +67,18 @@ const getScheduleURLs = async function(page = 1) {
 const getResultsURLs = async function(page = 1) {
     const matches = [];
     if (isNaN(page)) throw('invalid page number');
-    const html = await rp(`${urlResults}${page}`);
-    const $ = cheerio.load(html);
+    const tab = await browser.newPage();
+    await tab.goto(`${urlResults}${page}`, {
+        waitUntil: 'networkidle0',
+        timeout: 30000,
+    });
+    let html = await tab.content();
+    let $ = cheerio.load(html);
+    if ($('.cf-browser-verification')[0]) {
+        await timeout(10000);
+        html = await tab.content();
+        $ = cheerio.load(html);
+    }
     let len = $('div.cell.matches-list > div.grid-x > div').length;
     let date = '';
     const dateArray = [];
@@ -73,8 +109,18 @@ const getResultsURLs = async function(page = 1) {
 
 // Return a promise containing more detailed information about a match from its href
 const getResult = async function(href = '') {
-    const html = await rp(`https://www.gosugamers.net${href}`);
-    const $ = cheerio.load(html);
+    const tab = await browser.newPage();
+    await tab.goto(`${urlGosugamers}${href}`, {
+        waitUntil: 'networkidle0',
+        timeout: 30000,
+    });
+    let html = await tab.content();
+    let $ = cheerio.load(html);
+    if ($('.cf-browser-verification')[0]) {
+        await timeout(10000);
+        html = await tab.content();
+        $ = cheerio.load(html);
+    }
     let state = '';
     if ($('div.cell.match.finished')[0]) state = 'finished';
     else if ($('div.cell.match.live')[0]) state = 'live';
@@ -96,4 +142,4 @@ const getResult = async function(href = '') {
     return result;
 };
 
-module.exports = { getScheduleURLs, getResultsURLs, getResult };
+module.exports = { load, close, getScheduleURLs, getResultsURLs, getResult };

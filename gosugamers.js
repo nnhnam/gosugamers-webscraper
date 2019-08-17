@@ -9,12 +9,52 @@ const urlResults = 'https://www.gosugamers.net/dota2/matches/results?maxResults=
 
 let browser;
 
+const blockedResourceTypes = [
+    'image',
+    'media',
+    'font',
+    'texttrack',
+    'object',
+    'beacon',
+    'csp_report',
+    'imageset',
+];
+
+const skippedResources = [
+    'quantserve',
+    'adzerk',
+    'doubleclick',
+    'adition',
+    'exelator',
+    'sharethrough',
+    'cdn.api.twitter',
+    'google-analytics',
+    'googletagmanager',
+    'google',
+    'fontawesome',
+    'facebook',
+    'analytics',
+    'optimizely',
+    'clicktale',
+    'mixpanel',
+    'zedo',
+    'clicksor',
+    'tiqcdn',
+];
+
 function timeout(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 const load = async function() {
-    browser = await puppeteer.launch();
+    browser = await puppeteer.launch({ args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--disable-gpu',
+        '--window-size=1920x1080',
+    ] });
 };
 
 const close = async function() {
@@ -27,8 +67,21 @@ const getScheduleURLs = async function(page = 1) {
     if (isNaN(page)) throw('invalid page number');
     const tab = await browser.newPage();
     await tab.goto(`${urlSchedule}${page}`, {
-        waitUntil: 'networkidle0',
+        waitUntil: 'networkidle2',
         timeout: 30000,
+    });
+    await tab.setRequestInterception(true);
+    tab.on('request', request => {
+        const requestUrl = request._url.split('?')[0].split('#')[0];
+        if (
+            blockedResourceTypes.indexOf(request.resourceType()) !== -1 ||
+            skippedResources.some(resource => requestUrl.indexOf(resource) !== -1)
+        ) {
+            request.abort();
+        }
+        else {
+            request.continue();
+        }
     });
     let html = await tab.content();
     let $ = cheerio.load(html);
@@ -37,6 +90,8 @@ const getScheduleURLs = async function(page = 1) {
         html = await tab.content();
         $ = cheerio.load(html);
     }
+    await tab.goto('about:blank');
+    await tab.close();
     // Get ongoing
     let len = $('div.cell.matches-list > div > div.cell > a > div.live').length;
     for (let i = 0; i < len; ++i) {
@@ -69,8 +124,21 @@ const getResultsURLs = async function(page = 1) {
     if (isNaN(page)) throw('invalid page number');
     const tab = await browser.newPage();
     await tab.goto(`${urlResults}${page}`, {
-        waitUntil: 'networkidle0',
+        waitUntil: 'networkidle2',
         timeout: 30000,
+    });
+    await tab.setRequestInterception(true);
+    tab.on('request', request => {
+        const requestUrl = request._url.split('?')[0].split('#')[0];
+        if (
+            blockedResourceTypes.indexOf(request.resourceType()) !== -1 ||
+            skippedResources.some(resource => requestUrl.indexOf(resource) !== -1)
+        ) {
+            request.abort();
+        }
+        else {
+            request.continue();
+        }
     });
     let html = await tab.content();
     let $ = cheerio.load(html);
@@ -79,6 +147,8 @@ const getResultsURLs = async function(page = 1) {
         html = await tab.content();
         $ = cheerio.load(html);
     }
+    await tab.goto('about:blank');
+    await tab.close();
     let len = $('div.cell.matches-list > div.grid-x > div').length;
     let date = '';
     const dateArray = [];
@@ -111,8 +181,21 @@ const getResultsURLs = async function(page = 1) {
 const getResult = async function(href = '') {
     const tab = await browser.newPage();
     await tab.goto(`${urlGosugamers}${href}`, {
-        waitUntil: 'networkidle0',
+        waitUntil: 'networkidle2',
         timeout: 30000,
+    });
+    await tab.setRequestInterception(true);
+    tab.on('request', request => {
+        const requestUrl = request._url.split('?')[0].split('#')[0];
+        if (
+            blockedResourceTypes.indexOf(request.resourceType()) !== -1 ||
+            skippedResources.some(resource => requestUrl.indexOf(resource) !== -1)
+        ) {
+            request.abort();
+        }
+        else {
+            request.continue();
+        }
     });
     let html = await tab.content();
     let $ = cheerio.load(html);
@@ -121,6 +204,8 @@ const getResult = async function(href = '') {
         html = await tab.content();
         $ = cheerio.load(html);
     }
+    await tab.goto('about:blank');
+    await tab.close();
     let state = '';
     if ($('div.cell.match.finished')[0]) state = 'finished';
     else if ($('div.cell.match.live')[0]) state = 'live';

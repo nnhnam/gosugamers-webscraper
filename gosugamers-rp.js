@@ -1,96 +1,17 @@
 // Web Scraper for gosugamer.net
 
+const rp = require('request-promise');
 const cheerio = require('cheerio');
-const puppeteer = require('puppeteer');
 const urlGosugamers = 'https://www.gosugamers.net';
 const urlSchedule = 'https://www.gosugamers.net/dota2/matches?maxResults=18&page=';
 const urlResults = 'https://www.gosugamers.net/dota2/matches/results?maxResults=18&page=';
-
-let browser;
-
-const blockedResourceTypes = [
-    'image',
-    'media',
-    'font',
-    'texttrack',
-    'object',
-    'beacon',
-    'csp_report',
-    'imageset',
-];
-
-const skippedResources = [
-    'quantserve',
-    'adzerk',
-    'doubleclick',
-    'adition',
-    'exelator',
-    'sharethrough',
-    'cdn.api.twitter',
-    'google-analytics',
-    'googletagmanager',
-    'google',
-    'fontawesome',
-    'facebook',
-    'analytics',
-    'optimizely',
-    'clicktale',
-    'mixpanel',
-    'zedo',
-    'clicksor',
-    'tiqcdn',
-];
-
-function timeout(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-const load = async function() {
-    browser = await puppeteer.launch({ args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--disable-gpu',
-        '--window-size=1920x1080',
-    ] });
-};
-
-const close = async function() {
-    await browser.close();
-};
 
 // Return a promise containing ongoing and upcoming matches from Gosugamers
 const getScheduleURLs = async function(page = 1) {
     const matches = [];
     if (isNaN(page)) throw('invalid page number');
-    const tab = await browser.newPage();
-    await tab.goto(`${urlSchedule}${page}`, {
-        waitUntil: 'networkidle2',
-        timeout: 30000,
-    });
-    await tab.setRequestInterception(true);
-    tab.on('request', request => {
-        const requestUrl = request._url.split('?')[0].split('#')[0];
-        if (
-            blockedResourceTypes.indexOf(request.resourceType()) !== -1 ||
-            skippedResources.some(resource => requestUrl.indexOf(resource) !== -1)
-        ) {
-            request.abort();
-        }
-        else {
-            request.continue();
-        }
-    });
-    let html = await tab.content();
-    let $ = cheerio.load(html);
-    if ($('.cf-browser-verification')[0]) {
-        await timeout(10000);
-        html = await tab.content();
-        $ = cheerio.load(html);
-    }
-    await tab.goto('about:blank');
-    await tab.close();
+    const html = await rp(`${urlSchedule}${page}`);
+    const $ = cheerio.load(html);
     // Get ongoing
     let len = $('div.cell.matches-list > div > div.cell > a > div.live').length;
     for (let i = 0; i < len; ++i) {
@@ -121,33 +42,8 @@ const getScheduleURLs = async function(page = 1) {
 const getResultsURLs = async function(page = 1) {
     const matches = [];
     if (isNaN(page)) throw('invalid page number');
-    const tab = await browser.newPage();
-    await tab.goto(`${urlResults}${page}`, {
-        waitUntil: 'networkidle2',
-        timeout: 30000,
-    });
-    await tab.setRequestInterception(true);
-    tab.on('request', request => {
-        const requestUrl = request._url.split('?')[0].split('#')[0];
-        if (
-            blockedResourceTypes.indexOf(request.resourceType()) !== -1 ||
-            skippedResources.some(resource => requestUrl.indexOf(resource) !== -1)
-        ) {
-            request.abort();
-        }
-        else {
-            request.continue();
-        }
-    });
-    let html = await tab.content();
-    let $ = cheerio.load(html);
-    if ($('.cf-browser-verification')[0]) {
-        await timeout(10000);
-        html = await tab.content();
-        $ = cheerio.load(html);
-    }
-    await tab.goto('about:blank');
-    await tab.close();
+    const html = await rp(`${urlResults}${page}`);
+    const $ = cheerio.load(html);
     let len = $('div.cell.matches-list > div.grid-x > div').length;
     let date = '';
     const dateArray = [];
@@ -178,33 +74,8 @@ const getResultsURLs = async function(page = 1) {
 
 // Return a promise containing more detailed information about a match from its href
 const getResult = async function(href = '') {
-    const tab = await browser.newPage();
-    await tab.goto(`${urlGosugamers}${href}`, {
-        waitUntil: 'networkidle2',
-        timeout: 30000,
-    });
-    await tab.setRequestInterception(true);
-    tab.on('request', request => {
-        const requestUrl = request._url.split('?')[0].split('#')[0];
-        if (
-            blockedResourceTypes.indexOf(request.resourceType()) !== -1 ||
-            skippedResources.some(resource => requestUrl.indexOf(resource) !== -1)
-        ) {
-            request.abort();
-        }
-        else {
-            request.continue();
-        }
-    });
-    let html = await tab.content();
-    let $ = cheerio.load(html);
-    if ($('.cf-browser-verification')[0]) {
-        await timeout(10000);
-        html = await tab.content();
-        $ = cheerio.load(html);
-    }
-    await tab.goto('about:blank');
-    await tab.close();
+    const html = await rp(`${urlGosugamers}${href}`);
+    const $ = cheerio.load(html);
     let state = '';
     if ($('div.cell.match.finished')[0]) state = 'finished';
     else if ($('div.cell.match.live')[0]) state = 'live';
@@ -226,4 +97,4 @@ const getResult = async function(href = '') {
     return result;
 };
 
-module.exports = { load, close, getScheduleURLs, getResultsURLs, getResult };
+module.exports = { getScheduleURLs, getResultsURLs, getResult };

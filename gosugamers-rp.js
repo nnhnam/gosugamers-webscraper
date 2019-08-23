@@ -6,6 +6,14 @@ const urlGosugamers = 'https://www.gosugamers.net';
 const urlSchedule = 'https://www.gosugamers.net/dota2/matches?maxResults=18&page=';
 const urlResults = 'https://www.gosugamers.net/dota2/matches/results?maxResults=18&page=';
 
+const load = async function() {
+
+};
+
+const close = async function() {
+
+};
+
 // Return a promise containing ongoing and upcoming matches from Gosugamers
 const getScheduleURLs = async function(page = 1) {
     const matches = [];
@@ -97,4 +105,4 @@ const getResult = async function(href = '') {
     return result;
 };
 
-module.exports = { getScheduleURLs, getResultsURLs, getResult };
+module.exports = { load, close, getScheduleURLs, getResultsURLs, getResult };

@@ -3,8 +3,6 @@
 const cheerio = require('cheerio');
 const puppeteer = require('puppeteer');
 const urlGosugamers = 'https://www.gosugamers.net';
-const urlSchedule = 'https://www.gosugamers.net/dota2/matches?maxResults=18&page=';
-const urlResults = 'https://www.gosugamers.net/dota2/matches/results?maxResults=18&page=';
 
 let browser;
 
@@ -61,11 +59,12 @@ const close = async function() {
 };
 
 // Return a promise containing ongoing and upcoming matches from Gosugamers
-const getScheduleURLs = async function(page = 1) {
+const getScheduleURLs = async function({game = '', page = 1}) {
+    if (game !== undefined) game += '/';
     const matches = [];
     if (isNaN(page)) throw('invalid page number');
     const tab = await browser.newPage();
-    await tab.goto(`${urlSchedule}${page}`, {
+    await tab.goto(`${urlGosugamers}/${game}matches?maxResults=18&page=${page}`, {
         waitUntil: 'networkidle2',
         timeout: 30000,
     });
@@ -118,11 +117,12 @@ const getScheduleURLs = async function(page = 1) {
 };
 
 // Return a promise containing match results from Gosugamers
-const getResultsURLs = async function(page = 1) {
+const getResultsURLs = async function({game = '', page = 1}) {
+    if (game !== undefined) game += '/';
     const matches = [];
     if (isNaN(page)) throw('invalid page number');
     const tab = await browser.newPage();
-    await tab.goto(`${urlResults}${page}`, {
+    await tab.goto(`${urlGosugamers}/${game}matches/results?maxResults=18&page=${page}`, {
         waitUntil: 'networkidle2',
         timeout: 30000,
     });
@@ -167,8 +167,8 @@ const getResultsURLs = async function(page = 1) {
             team1: $('span.team-1 > span')[i].next.data.trim(),
             team2: $('span.team-2 > span')[i].next.data.trim(),
             tournament: $('div.cell.match-tournament')[i].children[0].data.trim(),
-            team1_win: $('div.cell.small-3.medium-3.match-score')[i].children[1].children[0].data.trim(),
-            team2_win: $('div.cell.small-3.medium-3.match-score')[i].children[5].children[0].data.trim(),
+            team1_score: $('div.cell.small-3.medium-3.match-score')[i].children[1].children[0].data.trim(),
+            team2_score: $('div.cell.small-3.medium-3.match-score')[i].children[5].children[0].data.trim(),
             time: dateArray[i],
             state: 'finished',
         });
@@ -220,8 +220,8 @@ const getResult = async function(href = '') {
         state: state,
     };
     if (state === 'finished') {
-        result.team1_win = $('div > div.details.cell.large-3.large-order-2 > div.score')[0].children[1].children[0].data;
-        result.team2_win = $('div > div.details.cell.large-3.large-order-2 > div.score')[0].children[3].children[0].data;
+        result.team1_score = $('div > div.details.cell.large-3.large-order-2 > div.score')[0].children[1].children[0].data;
+        result.team2_score = $('div > div.details.cell.large-3.large-order-2 > div.score')[0].children[3].children[0].data;
     }
     return result;
 };

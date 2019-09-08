@@ -22,14 +22,14 @@ Use puppeteer if Gosugamers requires Javascript to load their website. Otherwise
 ### Exemple
 ```js
 const test = async function() {
-    gosugamers.load();
+    await gosugamers.load();
     const sc = await gosugamers.getScheduleURLs(1).catch(console.error);
     console.log(sc); // Array of upcoming and ongoing matches
     const rs = await gosugamers.getResultsURLs(1).catch(console.error);
     console.log(rs); // Array of match results
     const match = await gosugamers.getResult('/dota2/tournaments/33677-the-international-2019/matches/318842-og-vs-fnatic');
     console.log(match); // Object containing match information
-    gosugamers.close();
+    await gosugamers.close();
 }
 ```
 To use request-promise, just replace gosugamers with gosugamersrp. However the load and close functions of gosugamersrp are just placeholders and don't do anything.

@@ -19,15 +19,15 @@ const gosugamers_rp = require('./gosugamers-rp'); // Using Request
 Use Puppeteer if Gosugamers requires Javascript to load their website. Otherwise use Request as it's much lighter and faster.
 * `gosugamers.getScheduleURLs({game, page})` Return a promise containing ongoing and upcoming matches parsed from
 
-    _https://www.gosugamers.net/_${game}_/matches?maxResults=18&page=_${page}
+    `https://www.gosugamers.net/${game}/matches?maxResults=18&page=${page}`
 
 * `gosugamers.getResultsURLs({game, page})` Return a promise containing match results parsed from
 
-    _https://www.gosugamers.net/_${game}_/matches/results?maxResults=18&page=_${page}
+    `https://www.gosugamers.net/${game}/matches/results?maxResults=18&page=${page}`
 
 * `gosugamers.getResult(href)` Return a promise containing match information parsed from 
 
-    _https://www.gosugamers.net/_${href}
+    `https://www.gosugamers.net/_${href}`
 
 Pass **game** as undefined to get result from all games.
 Check out https://www.gosugamers.net/ for a list of game strings.

@@ -117,7 +117,7 @@ const getScheduleURLs = async function(page = 1) {
     return matches;
 };
 
-// Return a promise containing matches' results from Gosugamers
+// Return a promise containing match results from Gosugamers
 const getResultsURLs = async function(page = 1) {
     const matches = [];
     if (isNaN(page)) throw('invalid page number');

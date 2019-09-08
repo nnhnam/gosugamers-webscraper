@@ -92,25 +92,25 @@ const getScheduleURLs = async function(page = 1) {
     await tab.goto('about:blank');
     await tab.close();
     // Get ongoing
-    let len = $('div.cell.matches-list > div > div.cell > a > div.live').length;
+    let len = $('div.cell.match-list > div > div.cell > a > div.live').length;
     for (let i = 0; i < len; ++i) {
         matches.push({
-            href: $('div.cell.matches-list > div > div.cell > a > div.live')[i].parent.attribs.href,
-            team1: $('div.cell.matches-list > div > div.cell > a > div.live > div > div > div > span.team-1 > span')[i].next.data.trim(),
-            team2: $('div.cell.matches-list > div > div.cell > a > div.live > div > div > div > span.team-2 > span')[i].next.data.trim(),
-            tournament: $('div.cell.matches-list > div > div.cell > a > div.live > div > div > div.cell.match-tournament')[i].children[0].data.trim(),
+            href: $('div.cell.match-list > div > div.cell > a > div.live')[i].parent.attribs.href,
+            team1: $('div.cell.match-list > div > div.cell > a > div.live > div > div > div > span.team-1 > span')[i].next.data.trim(),
+            team2: $('div.cell.match-list > div > div.cell > a > div.live > div > div > div > span.team-2 > span')[i].next.data.trim(),
+            tournament: $('div.cell.match-list > div > div.cell > a > div.live > div > div > div.cell.match-tournament')[i].children[0].data.trim(),
             state: 'live',
         });
     }
     // Get upcoming
-    len = $('div.cell.matches-list > div > div.cell > a > div.upcoming').length;
+    len = $('div.cell.match-list > div > div.cell > a > div.upcoming').length;
     for (let i = 0; i < len; ++i) {
         matches.push({
-            href: $('div.cell.matches-list > div > div.cell > a > div.upcoming')[i].parent.attribs.href,
+            href: $('div.cell.match-list > div > div.cell > a > div.upcoming')[i].parent.attribs.href,
             time: $('div.cell.small-3.medium-3.match-status > span > time')[i].attribs.datetime,
-            team1: $('div.cell.matches-list > div > div.cell > a > div.upcoming > div > div > div > span.team-1 > span')[i].next.data.trim(),
-            team2: $('div.cell.matches-list > div > div.cell > a > div.upcoming > div > div > div > span.team-2 > span')[i].next.data.trim(),
-            tournament: $('div.cell.matches-list > div > div.cell > a > div.upcoming > div > div > div.cell.match-tournament')[i].children[0].data.trim(),
+            team1: $('div.cell.match-list > div > div.cell > a > div.upcoming > div > div > div > span.team-1 > span')[i].next.data.trim(),
+            team2: $('div.cell.match-list > div > div.cell > a > div.upcoming > div > div > div > span.team-2 > span')[i].next.data.trim(),
+            tournament: $('div.cell.match-list > div > div.cell > a > div.upcoming > div > div > div.cell.match-tournament')[i].children[0].data.trim(),
             state: 'upcoming',
         });
     }
@@ -148,22 +148,22 @@ const getResultsURLs = async function(page = 1) {
     }
     await tab.goto('about:blank');
     await tab.close();
-    let len = $('div.cell.matches-list > div.grid-x > div').length;
+    let len = $('div.cell.match-list > div.grid-x > div').length;
     let date = '';
     const dateArray = [];
     for (let i = 0; i < len; ++i) {
-        if ($('div.cell.matches-list > div.grid-x > div')[i].attribs.class === 'match-date cell') {
-            date = $('div.cell.matches-list > div.grid-x > div')[i].children[0].data.trim();
+        if ($('div.cell.match-list > div.grid-x > div')[i].attribs.class === 'match-date cell') {
+            date = $('div.cell.match-list > div.grid-x > div')[i].children[0].data.trim();
         }
-        else if ($('div.cell.matches-list > div.grid-x > div')[i].attribs.class === 'cell') {
+        else if ($('div.cell.match-list > div.grid-x > div')[i].attribs.class === 'cell') {
             dateArray.push(date);
         }
     }
 
-    len = $('div.cell.matches-list > div > div.cell > a').length;
+    len = $('div.cell.match-list > div > div.cell > a').length;
     for (let i = 0; i < len; ++i) {
         matches.push({
-            href: $('div.cell.matches-list > div > div.cell > a')[i].attribs.href,
+            href: $('div.cell.match-list > div > div.cell > a')[i].attribs.href,
             team1: $('span.team-1 > span')[i].next.data.trim(),
             team2: $('span.team-2 > span')[i].next.data.trim(),
             tournament: $('div.cell.match-tournament')[i].children[0].data.trim(),

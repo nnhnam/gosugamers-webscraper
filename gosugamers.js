@@ -59,7 +59,7 @@ const close = async function() {
 };
 
 // Return a promise containing ongoing and upcoming matches from Gosugamers
-const getScheduleURLs = async function({game = '', page = 1}) {
+const getScheduleURLs = async function({ game = '', page = 1 }) {
     if (game !== undefined) game += '/';
     const matches = [];
     if (isNaN(page)) throw('invalid page number');
@@ -117,7 +117,7 @@ const getScheduleURLs = async function({game = '', page = 1}) {
 };
 
 // Return a promise containing match results from Gosugamers
-const getResultsURLs = async function({game = '', page = 1}) {
+const getResultsURLs = async function({ game = '', page = 1 }) {
     if (game !== undefined) game += '/';
     const matches = [];
     if (isNaN(page)) throw('invalid page number');

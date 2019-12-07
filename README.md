@@ -29,7 +29,7 @@ Use Puppeteer if Gosugamers requires Javascript to load their website. Otherwise
 
     `https://www.gosugamers.net/${href}`
 
-Pass **game** as undefined to get result from all games.
+Pass **game** as `undefined` to get result from all games.
 Check out https://www.gosugamers.net/ for a list of game strings.
 
 ### Example
